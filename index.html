@@ -10,7 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="app.css">
+  <!-- bump ?v= on every release so browsers fetch the new files instead of cached ones -->
+  <link rel="stylesheet" href="app.css?v=3">
 </head>
 <body>
   <div class="app is-loading" id="app">
@@ -134,7 +135,7 @@
 
     <div class="toast" id="toast" role="alert" hidden></div>
   </div>
-  <script src="km-hid.js"></script>
-  <script src="app.js"></script>
+  <script src="km-hid.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
