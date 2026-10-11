@@ -18,13 +18,18 @@ const KM = (() => {
 
   /* ---------- settings (per browser) ---------- */
 
-  const defaultNames = () => Array.from({ length: 15 }, (_, i) => `Effect ${i + 1}`);
+  // KM005 effect names in the keyboard's Fn+\ order (named by watching each one)
+  const DEFAULT_NAMES = [
+    'RGB Wave', 'Ocean', 'RGB', 'Wave', 'Trigger', 'Breathing', 'Static', 'Ripple Wave',
+    'Ripple', 'Random', 'Ripple Horizon', 'Pinwheel', 'Spiral', 'Snake', 'RGB Wave',
+  ];
+  // placeholder names saved by earlier versions ("Effect 3", Thai "โหมด 3") count as unnamed
+  const isPlaceholder = (n) => /^(Effect|โหมด) \d+$/.test(n);
   const cfg = (() => {
     let c = {};
     try { c = JSON.parse(localStorage.getItem(STORE)) || {}; } catch { /* private mode: run with defaults */ }
-    const names = defaultNames();
-    // older versions used Thai defaults ("โหมด 3"); show those as "Effect 3"
-    if (Array.isArray(c.names)) c.names.slice(0, 15).forEach((n, i) => { if (n) names[i] = String(n).replace(/^โหมด (\d+)$/, 'Effect $1'); });
+    const names = DEFAULT_NAMES.slice();
+    if (Array.isArray(c.names)) c.names.slice(0, 15).forEach((n, i) => { if (n && !isPlaceholder(String(n))) names[i] = String(n); });
     return {
       names,
       lastBright: Number(c.lastBright) > 0 ? Number(c.lastBright) : 255,
@@ -184,7 +189,8 @@ const KM = (() => {
       case '/api/name': {
         const i = Number(body.index);
         if (i >= 0 && i < 15) {
-          cfg.names[i] = String(body.name || '').trim().slice(0, 40) || `Effect ${i + 1}`;
+          // an empty name puts the default back
+          cfg.names[i] = String(body.name || '').trim().slice(0, 40) || DEFAULT_NAMES[i];
           save();
         }
         return stateObject();
