@@ -3,14 +3,14 @@
 /* ---------- constants ---------- */
 
 const PRESETS = [
-  { id: 'red', name: 'แดง', rgb: [255, 0, 0] },
-  { id: 'orange', name: 'ส้ม', rgb: [255, 80, 0] },
-  { id: 'yellow', name: 'เหลือง', rgb: [255, 255, 0] },
-  { id: 'green', name: 'เขียว', rgb: [0, 255, 0] },
-  { id: 'cyan', name: 'ฟ้า', rgb: [0, 255, 255] },
-  { id: 'blue', name: 'น้ำเงิน', rgb: [0, 0, 255] },
-  { id: 'purple', name: 'ม่วง', rgb: [255, 0, 255] },
-  { id: 'white', name: 'ขาว', rgb: [128, 128, 128], swatch: '#ffffff' },
+  { id: 'red', name: 'Red', rgb: [255, 0, 0] },
+  { id: 'orange', name: 'Orange', rgb: [255, 80, 0] },
+  { id: 'yellow', name: 'Yellow', rgb: [255, 255, 0] },
+  { id: 'green', name: 'Green', rgb: [0, 255, 0] },
+  { id: 'cyan', name: 'Cyan', rgb: [0, 255, 255] },
+  { id: 'blue', name: 'Blue', rgb: [0, 0, 255] },
+  { id: 'purple', name: 'Purple', rgb: [255, 0, 255] },
+  { id: 'white', name: 'White', rgb: [128, 128, 128], swatch: '#ffffff' },
 ];
 const LEVELS = [51, 102, 153, 204, 255]; // keyboard brightness steps (0x33 each)
 // Effects whose colors are built into the keyboard firmware (0-based mode index).
@@ -67,9 +67,9 @@ async function flush() {
   try {
     const next = await api('/api/state', body);
     if (!queued) applyState(next);
-    if (!next.connected) showToast('ไม่พบคีย์บอร์ด คำสั่งยังไม่ถูกส่ง');
+    if (!next.connected) showToast('Keyboard not found. The change was not sent.');
   } catch {
-    showToast('ส่งคำสั่งไปที่คีย์บอร์ดไม่สำเร็จ ลองอีกครั้ง');
+    showToast('Could not reach the keyboard. Try again.');
   } finally {
     inflight = false;
     if (queued) flush();
@@ -80,7 +80,7 @@ async function post(path, body) {
   try {
     applyState(await api(path, body));
   } catch {
-    showToast('บันทึกไม่สำเร็จ ลองอีกครั้ง');
+    showToast('Could not save. Try again.');
     poll();
   }
 }
@@ -125,11 +125,11 @@ const sameRgb = (a, b) => a && b && a[0] === b[0] && a[1] === b[1] && a[2] === b
 
 function colorName(s) {
   const fixed = fixedColor(s);
-  if (fixed === 'rainbow') return 'สีรุ้งของเอฟเฟกต์';
-  if (fixed === 'random') return 'สีสุ่มของเอฟเฟกต์';
-  if (s.rainbow) return 'สีรุ้ง';
+  if (fixed === 'rainbow') return 'Built-in rainbow';
+  if (fixed === 'random') return 'Built-in random colors';
+  if (s.rainbow) return 'Rainbow';
   const p = PRESETS.find((x) => sameRgb(x.rgb, s.rgb));
-  return p ? `สี${p.name}` : `สี ${toHex(s.rgb)}`;
+  return p ? p.name : toHex(s.rgb);
 }
 
 /* ---------- keyboard render ---------- */
@@ -177,7 +177,7 @@ function buildKeyboard() {
   knob = document.createElement('div');
   knob.className = 'knob';
   knob.dataset.id = 'knob';
-  knob.title = 'หมุนลูกกลิ้งเมาส์ตรงนี้เพื่อปรับความสว่าง';
+  knob.title = 'Scroll the mouse wheel here to change brightness';
   knob.innerHTML = '<span class="knob-face"></span><span class="knob-dial"><i></i></span>';
   Object.assign(knob.style, {
     left: pct(15.2 + PAD, KB_W), top: pct(PAD - 0.08, KB_H),
@@ -340,10 +340,10 @@ const PENCIL = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strok
 // Two groups: effects that take the chosen color, and effects with built-in colors.
 // Numbers stay the keyboard's own order (what Fn+\ cycles through).
 const EFFECT_GROUPS = [
-  { id: 'free', label: 'ปรับสีได้', test: (i) => !FIXED_COLOR[i] },
-  { id: 'fixed', label: 'สีตายตัว', test: (i) => !!FIXED_COLOR[i] },
+  { id: 'free', label: 'Custom color', test: (i) => !FIXED_COLOR[i] },
+  { id: 'fixed', label: 'Built-in color', test: (i) => !!FIXED_COLOR[i] },
 ];
-const FIXED_TAG = { rainbow: 'รุ้ง', random: 'สุ่ม' };
+const FIXED_TAG = { rainbow: 'Rainbow', random: 'Random' };
 
 function buildEffects() {
   const list = $('effectList');
@@ -375,7 +375,7 @@ function buildEffect(i) {
   li.dataset.index = i;
   const tag = FIXED_COLOR[i] ? `<span class="effect-tag is-${FIXED_COLOR[i]}">${FIXED_TAG[FIXED_COLOR[i]]}</span>` : '<span></span>';
   li.innerHTML = `<span class="effect-num">${String(i + 1).padStart(2, '0')}</span><span class="effect-name"></span>${tag}` +
-    `<button class="effect-edit" type="button" tabindex="-1" aria-label="ตั้งชื่อเอฟเฟกต์ ${i + 1}">${PENCIL}</button>`;
+    `<button class="effect-edit" type="button" tabindex="-1" aria-label="Rename effect ${i + 1}">${PENCIL}</button>`;
   li.addEventListener('click', (e) => {
     if (e.target.closest('.effect-edit')) { startRename(i); return; }
     if (renaming === i) return;
@@ -419,7 +419,7 @@ function startRename(i) {
   input.className = 'effect-input';
   input.value = state?.names?.[i] ?? '';
   input.maxLength = 40;
-  input.setAttribute('aria-label', `ชื่อเอฟเฟกต์ ${i + 1}`);
+  input.setAttribute('aria-label', `Effect ${i + 1} name`);
   nameEl.replaceWith(input);
   input.focus();
   input.select();
@@ -433,7 +433,7 @@ function startRename(i) {
     renaming = -1;
     li.focus();
     if (save && value !== (state?.names?.[i] ?? '')) {
-      state.names[i] = value || `โหมด ${i + 1}`;
+      state.names[i] = value || `Effect ${i + 1}`;
       render();
       post('/api/name', { index: i, name: value });
     }
@@ -464,7 +464,7 @@ function buildSwatches() {
     box.append(b);
     return b;
   };
-  make('รุ้ง', 'is-rainbow', () => setColor({ rainbow: true })).dataset.id = 'rainbow';
+  make('Rainbow', 'is-rainbow', () => setColor({ rainbow: true })).dataset.id = 'rainbow';
   for (const p of PRESETS) {
     make(p.name, '', () => setColor({ rainbow: false, rgb: p.rgb }), p.swatch || toHex(p.rgb)).dataset.id = p.id;
   }
@@ -518,8 +518,8 @@ function bindSaved() {
     if (!state?.connected || state.rainbow) return;
     const hex = toHex(state.rgb);
     const list = state.savedColors || [];
-    if (list.includes(hex)) { showToast(`สี ${hex} บันทึกไว้แล้ว`); return; }
-    if (list.length >= MAX_SAVED) { showToast(`บันทึกได้สูงสุด ${MAX_SAVED} สี ลบสีเก่าก่อนแล้วลองใหม่`); return; }
+    if (list.includes(hex)) { showToast(`${hex} is already saved`); return; }
+    if (list.length >= MAX_SAVED) { showToast(`You can save up to ${MAX_SAVED} colors. Remove one first.`); return; }
     saveColors([hex, ...list]);
   });
 
@@ -570,15 +570,15 @@ function renderSaved() {
       dot.type = 'button';
       dot.className = 'saved-dot';
       dot.setAttribute('role', 'radio');
-      dot.setAttribute('aria-label', `สี ${hex}`);
-      dot.title = `${hex} (กด Delete เพื่อลบ)`;
+      dot.setAttribute('aria-label', `Color ${hex}`);
+      dot.title = `${hex} (press Delete to remove)`;
       dot.style.setProperty('--c', hex);
       dot.addEventListener('click', () => setColor({ rainbow: false, rgb: parseHex(hex) }));
       const del = document.createElement('button');
       del.type = 'button';
       del.className = 'saved-del';
       del.tabIndex = -1;
-      del.setAttribute('aria-label', `ลบสี ${hex}`);
+      del.setAttribute('aria-label', `Remove ${hex}`);
       del.innerHTML = CROSS;
       del.addEventListener('click', () => removeSaved(i));
       item.append(dot, del);
@@ -592,7 +592,7 @@ function renderSaved() {
   $('savedEmpty').hidden = list.length > 0;
   const save = $('saveColor');
   save.disabled = !state.connected || state.rainbow || list.includes(current);
-  save.title = state.rainbow ? 'เลือกสีเดียวก่อน สีรุ้งบันทึกไม่ได้' : list.includes(current) ? 'สีนี้บันทึกไว้แล้ว' : `บันทึก ${current}`;
+  save.title = state.rainbow ? 'Pick a single color first; rainbow cannot be saved' : list.includes(current) ? 'Already saved' : `Save ${current}`;
 }
 
 /* ---------- brightness ---------- */
@@ -607,7 +607,7 @@ function buildBrightness() {
     b.className = 'seg-btn';
     b.setAttribute('role', 'radio');
     b.setAttribute('aria-checked', 'false');
-    b.setAttribute('aria-label', `ความสว่าง ${(i + 1) * 20}%`);
+    b.setAttribute('aria-label', `Brightness ${(i + 1) * 20}%`);
     b.innerHTML = `<span class="seg-bars" aria-hidden="true">${LEVELS.map((_, j) => `<i class="${j <= i ? 'on' : ''}" style="height:${(j + 1) * 20}%"></i>`).join('')}</span><span>${(i + 1) * 20}%</span>`;
     b.addEventListener('click', () => setBrightness(v));
     seg.append(b);
@@ -649,7 +649,7 @@ function buildSpeed() {
     b.className = 'seg-btn';
     b.setAttribute('role', 'radio');
     b.setAttribute('aria-checked', 'false');
-    b.setAttribute('aria-label', `ความเร็วระดับ ${level} จาก 6`);
+    b.setAttribute('aria-label', `Speed ${level} of 6`);
     b.textContent = level;
     b.addEventListener('click', () => {
       if (!state?.connected) return;
@@ -711,22 +711,22 @@ function render() {
   conn.classList.toggle('is-on', on);
   conn.classList.toggle('is-off', !on);
   const unsupported = state.supported === false;
-  $('connText').textContent = on ? 'เชื่อมต่อแล้ว'
-    : unsupported ? 'เบราว์เซอร์ไม่รองรับ'
-    : state.serverDown ? 'เกิดข้อผิดพลาด'
-    : state.needsPermission ? 'ยังไม่ได้เชื่อมต่อ'
-    : 'ไม่พบคีย์บอร์ด';
+  $('connText').textContent = on ? 'Connected'
+    : unsupported ? 'Browser not supported'
+    : state.serverDown ? 'Connection error'
+    : state.needsPermission ? 'Not connected'
+    : 'Keyboard not found';
 
   $('offline').hidden = on;
   if (!on) {
     // WebHID only works in Chromium browsers; the first visit needs a click to pick the keyboard
     const [title, text] = unsupported
-      ? ['เบราว์เซอร์นี้คุยกับคีย์บอร์ดไม่ได้', 'เปิดหน้านี้ด้วย Google Chrome หรือ Microsoft Edge บนคอมพิวเตอร์']
+      ? ['This browser cannot talk to the keyboard', 'Open this page in Google Chrome or Microsoft Edge on a computer.']
       : state.serverDown
-        ? ['เกิดข้อผิดพลาดในการเชื่อมต่อ', 'รีเฟรชหน้าเว็บ แล้วกดเชื่อมต่อคีย์บอร์ดอีกครั้ง']
+        ? ['Something went wrong while connecting', 'Refresh the page, then connect the keyboard again.']
         : state.needsPermission
-          ? ['เชื่อมต่อคีย์บอร์ด KM005', 'เสียบสาย USB และสลับคีย์บอร์ดเป็นโหมดสาย แล้วกดปุ่มด้านล่าง เลือก KM005 จากรายการ']
-          : ['ไม่พบคีย์บอร์ด KM005', 'เสียบสาย USB และสลับคีย์บอร์ดเป็นโหมดสาย ถ้าต่ออยู่แล้วแต่ยังไม่ขึ้น กดเชื่อมต่อใหม่'];
+          ? ['Connect your KM005', 'Plug in the USB cable, switch the keyboard to wired mode, then press the button below and pick KM005 from the list.']
+          : ['KM005 not found', 'Plug in the USB cable and switch the keyboard to wired mode. If it is plugged in but does not show up, connect again.'];
     $('offlineTitle').textContent = title;
     $('offlineText').textContent = text;
     $('connectBtn').hidden = unsupported;
@@ -742,25 +742,25 @@ function render() {
     li.tabIndex = selected || (!on && i === 0) ? 0 : -1;
     const nameEl = li.querySelector('.effect-name');
     if (nameEl) {
-      const name = names[i] || `โหมด ${i + 1}`;
+      const name = names[i] || `Effect ${i + 1}`;
       nameEl.textContent = name;
       nameEl.title = name;
-      nameEl.classList.toggle('is-default', /^โหมด \d+$/.test(name));
+      nameEl.classList.toggle('is-default', /^(โหมด|Effect) \d+$/.test(name));
     }
   }
 
   if (!on) {
     $('effectName').textContent = 'KM005';
-    $('effectMeta').textContent = 'รอการเชื่อมต่อ';
+    $('effectMeta').textContent = 'Waiting for the keyboard';
     setDisabled(true);
     return;
   }
   setDisabled(false);
 
-  $('effectName').textContent = names[state.mode] || `โหมด ${state.mode + 1}`;
+  $('effectName').textContent = names[state.mode] || `Effect ${state.mode + 1}`;
   $('effectMeta').textContent = state.bright === 0
-    ? `${colorName(state)} · ไฟปิดอยู่`
-    : `${colorName(state)} · ความสว่าง ${(levelIndex(state.bright) + 1) * 20}%`;
+    ? `${colorName(state)} · Lights off`
+    : `${colorName(state)} · Brightness ${(levelIndex(state.bright) + 1) * 20}%`;
 
   // color
   const preset = state.rainbow ? 'rainbow' : PRESETS.find((p) => sameRgb(p.rgb, state.rgb))?.id;
@@ -785,8 +785,8 @@ function render() {
   $('colorLock').hidden = !fixed;
   if (fixed) {
     $('colorLock').textContent = fixed === 'random'
-      ? 'เอฟเฟกต์นี้สุ่มสีให้แต่ละปุ่มเอง จึงเลือกสีไม่ได้ เปลี่ยนไปเอฟเฟกต์อื่นเพื่อตั้งสี'
-      : 'เอฟเฟกต์นี้ใช้สีรุ้งของตัวเอง จึงเลือกสีไม่ได้ เปลี่ยนไปเอฟเฟกต์อื่นเพื่อตั้งสี';
+      ? 'This effect gives every key its own random color, so it ignores color settings. Pick another effect to set a color.'
+      : 'This effect uses its own rainbow, so it ignores color settings. Pick another effect to set a color.';
     for (const el of $('colorGroup').querySelectorAll('button, input')) el.disabled = true;
   }
 
@@ -854,7 +854,7 @@ $('connectBtn').addEventListener('click', async () => {
   try {
     if (await KM.connect()) await poll();
   } catch {
-    showToast('เชื่อมต่อไม่สำเร็จ ลองถอดสายแล้วเสียบใหม่');
+    showToast('Could not connect. Unplug the cable, plug it back in and try again.');
   }
 });
 

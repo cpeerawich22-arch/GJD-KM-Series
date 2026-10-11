@@ -18,12 +18,13 @@ const KM = (() => {
 
   /* ---------- settings (per browser) ---------- */
 
-  const defaultNames = () => Array.from({ length: 15 }, (_, i) => `โหมด ${i + 1}`);
+  const defaultNames = () => Array.from({ length: 15 }, (_, i) => `Effect ${i + 1}`);
   const cfg = (() => {
     let c = {};
     try { c = JSON.parse(localStorage.getItem(STORE)) || {}; } catch { /* private mode: run with defaults */ }
     const names = defaultNames();
-    if (Array.isArray(c.names)) c.names.slice(0, 15).forEach((n, i) => { if (n) names[i] = String(n); });
+    // older versions used Thai defaults ("โหมด 3"); show those as "Effect 3"
+    if (Array.isArray(c.names)) c.names.slice(0, 15).forEach((n, i) => { if (n) names[i] = String(n).replace(/^โหมด (\d+)$/, 'Effect $1'); });
     return {
       names,
       lastBright: Number(c.lastBright) > 0 ? Number(c.lastBright) : 255,
@@ -183,7 +184,7 @@ const KM = (() => {
       case '/api/name': {
         const i = Number(body.index);
         if (i >= 0 && i < 15) {
-          cfg.names[i] = String(body.name || '').trim().slice(0, 40) || `โหมด ${i + 1}`;
+          cfg.names[i] = String(body.name || '').trim().slice(0, 40) || `Effect ${i + 1}`;
           save();
         }
         return stateObject();

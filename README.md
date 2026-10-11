@@ -1,32 +1,33 @@
-# KM005 Web
+# KM005 Web Control
 
-ปรับไฟคีย์บอร์ด **GOOJODOQ KM005** ผ่านเบราว์เซอร์ ไม่ต้องติดตั้งโปรแกรม ใช้ [WebHID](https://developer.mozilla.org/docs/Web/API/WebHID_API) คุยกับคีย์บอร์ดโดยตรง
+Control the lighting of the **GOOJODOQ KM005** keyboard from your browser. Nothing to install: the page talks to the keyboard directly through [WebHID](https://developer.mozilla.org/docs/Web/API/WebHID_API).
 
-> โปรเจกต์ไม่เป็นทางการ ทำขึ้นเองจากการแกะโปรโตคอล ไม่ได้เกี่ยวข้องกับบริษัท GOOJODOQ
+> Unofficial, community-made project built by reverse-engineering the keyboard's USB protocol. Not affiliated with GOOJODOQ.
 
-## ใช้งาน
+## Use it
 
-1. เปิดหน้าเว็บด้วย **Google Chrome** หรือ **Microsoft Edge** บนคอมพิวเตอร์ (Firefox และ Safari ยังไม่รองรับ WebHID)
-2. เสียบสาย USB และสลับคีย์บอร์ดเป็น **โหมดสาย** (ผ่าน 2.4G หรือ Bluetooth ปรับไม่ได้)
-3. กด **เชื่อมต่อคีย์บอร์ด** แล้วเลือก KM005
-4. ปรับเอฟเฟกต์ สี ความสว่าง และความเร็วได้เลย ค่าจะถูกเก็บในคีย์บอร์ด สลับกลับไปใช้ไร้สายแล้วก็ยังอยู่
+1. Open the page in **Google Chrome** or **Microsoft Edge** on a computer (Firefox and Safari do not support WebHID yet).
+2. Plug in the USB cable and switch the keyboard to **wired mode** (lighting cannot be changed over 2.4G or Bluetooth).
+3. Press **Connect keyboard** and pick KM005.
+4. Change effect, color, brightness and speed. Settings are stored on the keyboard, so they stay when you switch back to wireless.
 
-ชื่อเอฟเฟกต์และสีที่บันทึกไว้จะเก็บในเบราว์เซอร์เครื่องนั้น
+Effect names and saved colors are kept in the browser you use.
 
-## โปรโตคอล
+## Protocol
 
-อินเทอร์เฟซ HID แบบ vendor-defined (usage page `0xFF00`, usage `0x01`) รายงานขนาด 64 byte ไม่มี report ID
+Vendor-defined HID interface (usage page `0xFF00`, usage `0x01`), 64-byte reports, no report ID.
 
-| ทิศทาง | รูปแบบ |
+| Direction | Format |
 |---|---|
-| ส่ง | `55 <cmd>` + 0 อีก 8 byte + ข้อมูล |
-| รับ | `AA <cmd>` + 8 byte ที่ส่งไป (echo) + ข้อมูล |
+| Out | `55 <cmd>` + 8 zero bytes + data |
+| In | `AA <cmd>` + echo of the 8 bytes + data |
 
-- `55 05` อ่านสถานะ, `55 06 <สถานะ>` เขียนสถานะ
-- สถานะ 9 byte: `[เอฟเฟกต์ 00–0E] [ความสว่าง 00–FF] [ความเร็ว 00 เร็วสุด–05 ช้าสุด] [?] [1 = รุ้ง / 0 = สีเดียว] [?] [R] [G] [B]`
-- เปลี่ยนเอฟเฟกต์แล้วคีย์บอร์ดจะกลับเป็นสีรุ้งเอง ค่า RGB ยังเก็บไว้
+- `55 05` reads the state, `55 06 <state>` writes it.
+- State, 9 bytes: `[effect 00–0E] [brightness 00–FF] [speed 00 fastest … 05 slowest] [?] [1 = rainbow / 0 = single color] [?] [R] [G] [B]`
+- Changing the effect makes the keyboard go back to rainbow; the RGB bytes are kept.
+- Effects 1, 3 and 15 have a built-in rainbow and effect 10 uses random colors, so color settings do nothing there.
 
-## ไฟล์
+## Files
 
-- `index.html`, `app.css`, `app.js`: หน้าตาและการทำงาน
-- `km-hid.js`: ส่วนคุยกับคีย์บอร์ดผ่าน WebHID และเก็บค่าตั้งใน localStorage
+- `index.html`, `app.css`, `app.js`: interface
+- `km-hid.js`: WebHID connection and settings (localStorage)

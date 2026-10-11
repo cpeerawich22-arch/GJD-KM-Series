@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>KM005</title>
-  <meta name="description" content="ปรับไฟคีย์บอร์ด GOOJODOQ KM005 ผ่านเบราว์เซอร์ (WebHID) ไม่ต้องติดตั้งโปรแกรม">
+  <meta name="description" content="Control GOOJODOQ KM005 keyboard lighting from your browser (WebHID). Nothing to install.">
   <link rel="icon" type="image/png" href="icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,18 +21,18 @@
       </div>
       <div class="conn" id="conn" role="status" aria-live="polite">
         <span class="conn-dot" aria-hidden="true"></span>
-        <span id="connText">กำลังเชื่อมต่อ</span>
+        <span id="connText">Connecting</span>
       </div>
     </header>
 
     <main class="layout">
       <nav class="effects" aria-labelledby="effectsTitle">
         <div class="panel-head">
-          <h2 id="effectsTitle">เอฟเฟกต์</h2>
+          <h2 id="effectsTitle">Effects</h2>
           <span class="keyhint"><kbd>Fn</kbd><kbd>\</kbd></span>
         </div>
         <ol class="effect-list" id="effectList" role="listbox" aria-labelledby="effectsTitle"></ol>
-        <p class="panel-foot">ดับเบิลคลิกหรือกด F2 เพื่อตั้งชื่อเอฟเฟกต์</p>
+        <p class="panel-foot">Double-click or press F2 to rename an effect</p>
       </nav>
 
       <section class="stage" aria-labelledby="effectName">
@@ -47,63 +47,63 @@
             <div class="kb-case"></div>
           </div>
           <div class="offline" id="offline" hidden>
-            <strong id="offlineTitle">ไม่พบคีย์บอร์ด KM005</strong>
-            <span id="offlineText">เสียบสาย USB แล้วรอสักครู่ แอปจะเชื่อมต่อให้เอง</span>
-            <button type="button" class="primary-btn" id="connectBtn" hidden>เชื่อมต่อคีย์บอร์ด</button>
+            <strong id="offlineTitle">KM005 not found</strong>
+            <span id="offlineText">Plug in the USB cable; the app connects by itself.</span>
+            <button type="button" class="primary-btn" id="connectBtn" hidden>Connect keyboard</button>
           </div>
         </div>
 
-        <ul class="shortcuts" aria-label="ปุ่มลัดบนคีย์บอร์ด">
-          <li data-keys="fn bslash"><span class="keyhint"><kbd>Fn</kbd><kbd>\</kbd></span>เปลี่ยนเอฟเฟกต์</li>
-          <li data-keys="fn tab"><span class="keyhint"><kbd>Fn</kbd><kbd>Tab</kbd></span>เปลี่ยนสี</li>
-          <li data-keys="fn up down knob"><span class="keyhint"><kbd>Fn</kbd><kbd>↑</kbd><kbd>↓</kbd></span>ความสว่าง</li>
-          <li data-keys="fn esc"><span class="keyhint"><kbd>Fn</kbd><kbd>Esc</kbd></span>ค้าง 5 วินาที คืนค่าโรงงาน</li>
+        <ul class="shortcuts" aria-label="Keyboard shortcuts">
+          <li data-keys="fn bslash"><span class="keyhint"><kbd>Fn</kbd><kbd>\</kbd></span>Change effect</li>
+          <li data-keys="fn tab"><span class="keyhint"><kbd>Fn</kbd><kbd>Tab</kbd></span>Change color</li>
+          <li data-keys="fn up down knob"><span class="keyhint"><kbd>Fn</kbd><kbd>↑</kbd><kbd>↓</kbd></span>Brightness</li>
+          <li data-keys="fn esc"><span class="keyhint"><kbd>Fn</kbd><kbd>Esc</kbd></span>Hold 5 s to factory reset</li>
         </ul>
-        <p class="stage-note">ภาพตัวอย่างจำลองจากชื่อเอฟเฟกต์ ไฟจริงบนคีย์บอร์ดอาจต่างออกไปเล็กน้อย</p>
+        <p class="stage-note">The preview is simulated from the effect name; the real lighting may look slightly different.</p>
       </section>
 
-      <aside class="settings" aria-label="ตั้งค่าไฟ">
+      <aside class="settings" aria-label="Lighting settings">
         <section class="group" id="colorGroup" aria-labelledby="colorTitle">
           <div class="panel-head">
-            <h2 id="colorTitle">สี</h2>
+            <h2 id="colorTitle">Color</h2>
             <span class="keyhint"><kbd>Fn</kbd><kbd>Tab</kbd></span>
           </div>
           <p class="lock-note" id="colorLock" role="status" hidden></p>
           <div class="swatches" id="swatches" role="radiogroup" aria-labelledby="colorTitle"></div>
 
           <div class="custom">
-            <label class="field-label" for="hexInput">สีกำหนดเอง</label>
+            <label class="field-label" for="hexInput">Custom color</label>
             <div class="custom-row">
-              <label class="picker" title="เปิดตัวเลือกสี">
-                <input type="color" id="colorInput" aria-label="เปิดตัวเลือกสี">
+              <label class="picker" title="Open color picker">
+                <input type="color" id="colorInput" aria-label="Open color picker">
                 <span class="picker-chip" id="pickerChip"></span>
               </label>
               <input id="hexInput" class="hex" maxlength="7" spellcheck="false" autocomplete="off" aria-describedby="hexHelp">
             </div>
-            <input type="range" id="hue" class="hue" min="0" max="359" step="1" aria-label="เฉดสี">
-            <p id="hexHelp" class="help">พิมพ์รหัสสี เช่น #00A0FF แล้วกด Enter หรือเลื่อนแถบเฉดสี</p>
+            <input type="range" id="hue" class="hue" min="0" max="359" step="1" aria-label="Hue">
+            <p id="hexHelp" class="help">Type a hex code like #00A0FF and press Enter, or drag the hue slider.</p>
           </div>
 
           <div class="saved">
             <div class="saved-head">
-              <span class="field-label" id="savedTitle">สีที่บันทึกไว้</span>
+              <span class="field-label" id="savedTitle">Saved colors</span>
               <button type="button" class="text-btn" id="saveColor">
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                บันทึกสีนี้
+                Save color
               </button>
             </div>
             <div class="saved-list" id="savedList" role="radiogroup" aria-labelledby="savedTitle"></div>
-            <p class="help" id="savedEmpty">ยังไม่มีสีที่บันทึก ตั้งสีที่ชอบแล้วกด "บันทึกสีนี้" เพื่อเก็บไว้ใช้ครั้งหน้า</p>
+            <p class="help" id="savedEmpty">No saved colors yet. Set a color you like and press "Save color" to keep it for later.</p>
           </div>
         </section>
 
         <section class="group" aria-labelledby="brightTitle">
           <div class="panel-head">
-            <h2 id="brightTitle">ความสว่าง</h2>
+            <h2 id="brightTitle">Brightness</h2>
             <span class="keyhint"><kbd>Fn</kbd><kbd>↑</kbd><kbd>↓</kbd></span>
           </div>
           <div class="row">
-            <span id="powerLabel">ไฟคีย์บอร์ด</span>
+            <span id="powerLabel">Keyboard lights</span>
             <button class="switch" id="power" role="switch" aria-checked="false" aria-labelledby="powerLabel"><span></span></button>
           </div>
           <div class="seg" id="bright" role="radiogroup" aria-labelledby="brightTitle"></div>
@@ -111,23 +111,23 @@
 
         <section class="group" aria-labelledby="speedTitle">
           <div class="panel-head">
-            <h2 id="speedTitle">ความเร็วเอฟเฟกต์</h2>
+            <h2 id="speedTitle">Effect speed</h2>
             <span class="speed-value" id="speedValue"></span>
           </div>
           <div class="seg seg-6" id="speed" role="radiogroup" aria-labelledby="speedTitle"></div>
-          <div class="seg-scale" aria-hidden="true"><span>ช้า</span><span>เร็ว</span></div>
+          <div class="seg-scale" aria-hidden="true"><span>Slow</span><span>Fast</span></div>
         </section>
 
         <section class="group">
           <div class="row row-top">
             <span class="opt-text">
-              <span id="keepLabel">คงสีเดิมเมื่อเปลี่ยนเอฟเฟกต์</span>
-              <small id="keepHelp">คีย์บอร์ดจะกลับเป็นสีรุ้งทุกครั้งที่เปลี่ยนเอฟเฟกต์ เปิดไว้แล้วแอปจะใส่สีที่คุณเลือกกลับให้</small>
+              <span id="keepLabel">Keep color when switching effects</span>
+              <small id="keepHelp">The keyboard goes back to rainbow on every effect change. With this on, the app puts your color back.</small>
             </span>
             <button class="switch" id="keepColor" role="switch" aria-checked="true" aria-labelledby="keepLabel" aria-describedby="keepHelp"><span></span></button>
           </div>
-          <p class="fine-print">ชื่อเอฟเฟกต์และสีที่บันทึกเก็บไว้ในเบราว์เซอร์นี้เท่านั้น<br>
-            โปรแกรมไม่เป็นทางการ ทำขึ้นเองสำหรับคีย์บอร์ด GOOJODOQ KM series ไม่ได้เกี่ยวข้องกับบริษัท GOOJODOQ</p>
+          <p class="fine-print">Effect names and saved colors are stored in this browser only.<br>
+            Unofficial, community-made tool for GOOJODOQ KM series keyboards. Not affiliated with GOOJODOQ.</p>
         </section>
       </aside>
     </main>
